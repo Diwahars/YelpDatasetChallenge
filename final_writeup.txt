@@ -1,0 +1,186 @@
+Yelp Data Analysis
+Final Project for CS 123, Spring 2015
+By Davis Tsui & Rachel Whaley
+
+-------
+Dataset
+-------
+
+For our dataset, we used Yelp Dataset Challenge data, which includes data on reviews, businesses, users, tips, and check-ins. We used the first four of those datasets:
+
+Reviews (1.6 million; 1.3GB)
+Businesses (61K; 52.8MB)
+Users (366K, 158.4MB)
+Tips (500K, 93.8MB)
+
+This data is available for download from www.yelp.com/dataset_challenge.
+Each dataset is stored in json format.
+
+----------------------
+Questions & Hypotheses
+----------------------
+
+Question 1: What are the top k words in the reviews/tips for each business?
+
+	We anticipated that the top k words among all reviews for a business (filtered for common English words, such as prepositions) would overlap with Yelp's category tags in many cases, and that any word in the top k that was not a category tag is something we could suggest as an additional category tag.
+
+Question 2: How do the ratings of early reviews affect a business's later ratings?
+
+	We anticipated that businesses that initially get low ratings will work hard to garner more positive reviews in the future.
+
+Question 3: Is there a positive correlation between the polarity score of each review text and the star rating given by the reviewer. In other words, how realiable is the sentiment analysis of our Natural Language Processing API?
+
+	We anticipate that there will be a positive correlation between the polarity score of the review text and the star rating of the review.
+
+Question 4: Does the length of the review text have any correlation with the rating the use gives?
+
+	We anticipate that the longer the review text is, the more extreme the review rating will be.
+
+Question 5: How does the day of the week affect reviewers' ratings?
+	
+	We hypothesize a significant drop in review rating on Monday/Tuesday and a significant rise in review rating on Friday/Saturday.
+
+Question 6: Does the day of the week have any correlation with the polarity of the review text, thus, how happy yelpers are?
+	
+	We hypothesize that the polarity score for Monday/Tuesday will be the lowest and the polarity score for Friday/Saturday will be the highest.
+
+Question 7: How likely is that a yelper's friend has also visited at least one of the restaurants/businesses that the yelper has left a review/tip for?
+
+	We anticipate this to be a number quite close to 100% since we think that people in the same friend group tend to visit the same restaurants.
+
+--------------------
+Algorithms & Methods
+--------------------
+
+Question 1: What are the top k words in the reviews/tips for each business?
+
+	We compiled the text of all reviews and tips for each business, and then indexed and counted words in order to determine the top k most frequent words.
+
+Question 2: How do the ratings of early reviews affect a business's later ratings?
+
+	We partition the reviews into an early set and a later set, then we take the average of each of these two sets for each business, then we run a correlation to find the overall pattern.
+
+Question 3: Is there a positive correlation between the polarity score of each review text and the star rating given by the reviewer. In other words, how realiable is the sentiment analysis of our Natural Language Processing API?
+
+	We run through every review in the review json dataset (there are 1.6 million of them). Each line in the json file is one review, so it was very easy for us to implement MapReduce on the dataset. With only a mapper in MapReduce, we are able to return the polarity score of the text (calculated in mapper with TextBlob, our Natural Language Processing API), and the rating. Therefore, we would eventually have a list of tuples: (polarity score, star rating) of every single review in the file. With this list of tuples, we plotted a scatter plot with the x-axis being the polarity scores and the y-axis being the star rating (1, 2, 3, 4, 5). We then looked at the graph and see if there is a positive correlation, then that means that the sentiment analysis of our Natural Language Processing API holds merit and serves as a plausible basis for our later analysis. (It is important to note here that the r-squared value is not suitable for analysis here since the ratings (1, 2, 3, 4, 5) are discrete).
+
+Question 4: Does the length of the review text have any correlation with the rating the use gives?
+
+	Similar method as described in Question 3, however, in the mapper for MapReduce, instead returning the polarity score of the text and the star rating, I now return the length of the review text and the star rating.
+
+Question 5: Does the day of the week have any correlation with the star rating of the review text?
+
+	First of all, with MapReduce, we ran through every review in review json data file and made a dictionary with each key being the day of the week (1: Monday, ... , 7: Sunday) and the value being the tuple: (polarity score, star rating) of the review. With another function that takes in this dictionary, we were then able to make a dicitionary with each key being the day of the week and the value being the list of star ratings that belong specifically to the key (the day of the week. And then, we made a list that has 7 tuples exactly in it, with each tuple being: (day of week, average rating). We then scatter plotted this list and thus, was able to see the drop and rise in star ratings with respect to the day.
+
+
+Question 6: Does the day of the week have any correlation with the polarity of the review text, thus, how happy yelpers are?
+
+	We applied the exact same approach as described in Question 5 to polarity scores. We expect to see a signifncat drop in the average rating on Monday/Tuesday and a significant rise on Friday/Saturday.
+
+Question 7: How likely is that a yelper's friend has also visited at least one of the restaurants/businesses that the yelper has left a review/tip for.
+
+	With Map Reduce, we are able to first run through every review in the review json data file and every tip in the tip json data file and make a dicitonary with each key being a user id and the value being the list of restaurants the user has once visited (has either left a review/tip for). We then looked at each user in the user json file individually, find the list of restaurants that the user has once been to and then match that list to the yelper's friend's restaurant list (we look at the yelper's friends one by one). If there is an intersection, meaning that the yelper and his/her friend has been to a common restaurant/business before, we increment the success count by 1 (while total count is being incremented everytime we look at a new user who is present in the the large dictionary that we made as described in the beginning.) Therefore, eventually, we are able to output the percentage of yelpers who have visited common businesses as at least one of their friends on yelp. We implemented this last part that we just described with multi-processing.
+
+-------------------
+Big Data Approaches
+-------------------
+
+Question 1: What are the top k words in the reviews/tips for each business?
+
+	We used MapReduce to compile the word frequency counts for each review.
+
+Question 2: How do the ratings of early reviews affect a business's later ratings?
+
+	We used MapReduce to compile the date and rating from all reviews for each business.
+
+Question 3: Is there a positive correlation between the polarity score of each review text and the star rating given by the reviewer. In other words, how realiable is the sentiment analysis of our Natural Language Processing API?
+
+	We used MapReduce to run through the review json file, which has ~1.6 million lines (each line being one review) and with only a mapper, we yielded the polarity score of the review text and the review rating.
+
+Question 4: Does the length of the review text have any correlation with the rating the use gives?
+
+	Same method as above, but this time, the mapper in MapReduce yields string length and review rating.
+
+Question 5: Does the day of the week have any correlation with the star rating of the review text?
+	
+	We used MapReduce to run through the review json file and made a made a dictionary with each key being the day of the week (1: Monday, ... , 7: Sunday) and the value being the tuple: (polarity score, star rating) of the review.
+
+Question 6: Does the day of the week have any correlation with the polarity of the review text, thus, how happy yelpers are?
+
+	We applied MapReduce in the exact same way as described in Question 5.
+
+Question 7: How likely is that a yelper's friend has also visited at least one of the restaurants/businesses that the yelper has left a review/tip for.
+
+	Big data techniques are particularly important in analyzing this question because we need to first run through the entire review json dataset and the tip dataset. And then, we need to look at every user in the user json dataset and compare the user to each of his/her friend. Therefore, we are scalling up our data quite a bit.
+
+	First, with MapReduce, we run through every review in the review json file and every tip in the top json file and make a dictionary with each user_id as the key and the value as the list of restaurants that the user has gone to. We then chopped the user file into 4 chunks and with multi-processing, we were able to work on each of the four separate files consurrently.
+
+-----------------------------------------------
+Things Learned Beyond Material Covered in Class
+-----------------------------------------------
+
+Natural Language Processing
+
+	We used TextBlob, a free natural language processing library, to perform sentiment analysis on the text of reviews for polarity and subjectivity. Polarity is a score between -1 and 1 that denotes how positive or negative a review is, based on the text. Subjectivity is a score between 0 and 1 that gauges how "emotional" text is, with 0 being very objective and 1 being very subjective.
+
+How to organize all of the files in a clear manner:
+
+	Eventually, we made an src folder with all the source codes and an output folder where all the output (text/png files) are going to be saved. We also placed our run_all.py in the root project directory so you can run everything just from the root.
+
+How to implement a script that calls on all the other scripts in Python:
+
+	We know that python doesn't have a Makefile, however, we still wanted to make script that calls on and runs all the codes that we have.
+
+----------
+Challenges
+----------
+
+Scaling up our project:
+
+	When approaching this project, it was initially challenging for us to find ways to scale up size of it. But then we realized that the review json file has 1.6 million reviews in it and just by running it through completely once, we will have to employ big data technique. Furthermore, after dicussing with Professor Wachs, we realized that a good way of scaling up our data would be pairing them up -- as we did in Question 7: by comparing the user to each of his/her friends. This also explains why we had to employ both MapReduce and Multi-processing to tackle the question.
+
+Applying MapReduce:
+
+	For Question 7, we wanted to apply a map reduce within a MapReduce but then we soon realized that was a very bad idea as it would require constant booting and shutting off of aws instances, which is very expensive in run time. To solve, this problem, we implemented multi-processing.
+
+Applying Multi-processing:
+
+	We emulated our multi-processing code from the one demonstrated in Lecture 4/5 in class. Even though we are very lucky to have the function find_file_ranges give to us (from Code Snippet from the course site), which divides the specified file into chunks specified and returns a list of the ranges, We still struggled to zip the arguments together and eventually map and make everything worl. However, we were able to figure it out at the end!
+
+Realizing MRJob silently accepts, but fails, on non-primitive keys:
+
+	We had to learn this lesson the hard way when we tried to yield a datetime.date object.
+
+-------------------
+Results of Analysis
+-------------------
+
+Question 1: What are the top k words in the reviews/tips for each business?
+
+	[ add stuff here ]
+
+Question 2: How do the ratings of early reviews affect a business's later ratings?
+
+	R-value = 
+	Slope = 
+	[ insert explanation here] 
+
+Question 3: Is there a positive correlation between the polarity score of each review text and the star rating given by the reviewer. In other words, how realiable is the sentiment analysis of our Natural Language Processing API?
+
+	By looking at the scatter plot, we can see that there is a visible and clear postive correlation between the polarity score and the rating, thus validating our hypothesis. The polarity function of our Natural Language Processing API is plausible for the use in the rest of the project
+
+Question 4: Does the length of the review text have any correlation with the rating the use gives?
+
+	Looking at the scatter plot of string length vs. star rating, it is evident that each rating (1, 2, 3, 4, 5) has approximately the distribution of string lengths. Therefore, this rejects our hypothesis that reviews with higher/lower ratings tend to have longer string lengths.
+
+Question 5: Does the day of the week have any correlation with the star rating of the review text?
+
+	Looking at the scatter plot of the average values of the review rating by the day of the week, it is clear that there is no signifant different among the days. Therefore, this rejects our hypothesis that yelpers give higher review ratings on Friday/Saturday and lower review ratings on Monday/Tuesday.
+
+Question 6: Does the day of the week have any correlation with the polarity of the review text, thus, how happy yelpers are?
+
+	It is evident from the scatter plot that there is a significant drop of polarity score on Tuesday and and significant rise of it on Saturday while the score remains roughly the same every other day. This is very interesting for it shows that people who left a review on Tuesday are significantly less happy than those who left reviews on any other day and the opposite holds true for those on Saturday. This lines up with our hypothesis.
+
+Question 7: How likely is that a yelper's friend has also visited at least one of the restaurants/businesses that the yelper has left a review/tip for.
+
+	TBA
