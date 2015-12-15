@@ -1,10 +1,10 @@
 Yelp Data Analysis
-Final Project for CS 123, Spring 2015
+Final Project for CS123, Spring 2015
 By Davis Tsui & Rachel Whaley
-
 
 Our code is organized into sets of files that answer particular questions about our data.
 
+*************************************
 
 Question 1: What are the top k words in the reviews/tips for each business?
 	files:
@@ -14,6 +14,7 @@ Question 1: What are the top k words in the reviews/tips for each business?
 		top_k_words_mp_reduce.py:
 			This file contains MapReduce functions for run_top_k_words.py.
 
+*************************************
 
 Question 2: How do the ratings of early reviews affect a business's later ratings?
 	files:
@@ -23,6 +24,7 @@ Question 2: How do the ratings of early reviews affect a business's later rating
 		time_improve_mp_reduce.py
 			This file contains MapReduce functions for run_time_improvement_analysis.py.
 
+*************************************
 
 Question 3: Is there a positive correlation between the polarity score of each review text and the star rating given by the reviewer. In other words, how realiable is the sentiment analysis of our Natural Language Processing API?
 	files:
@@ -32,6 +34,7 @@ Question 3: Is there a positive correlation between the polarity score of each r
 		text_analysis_mp_reduce.py
 			This file contains MapReduce functions for run_text_analysis.py.
 
+*************************************
 
 Question 4: Does the length of the review text have any correlation with the rating the use gives?
 	files:
@@ -41,6 +44,7 @@ Question 4: Does the length of the review text have any correlation with the rat
 		text_analysis_mp_reduce.py
 			This file contains MapReduce functions for run_text_analysis.py.
 
+*************************************
 
 Question 5: Does the day of the week have any correlation with the star rating of the review text?
 	files:
@@ -50,6 +54,7 @@ Question 5: Does the day of the week have any correlation with the star rating o
 		day_polarity_rating_analysis_mp_reduce.py
 			This file contains MapReduce functions for run_day_polarity_rating_analysis.py.
 
+*************************************
 
 Question 6: Does the day of the week have any correlation with the polarity of the review text, thus, how happy yelpers are?
 	files: 
@@ -59,6 +64,7 @@ Question 6: Does the day of the week have any correlation with the polarity of t
 		day_polarity_rating_analysis_mp_reduce.py
 			This file contains MapReduce functions for run_day_polarity_rating_analysis.py.
 
+*************************************
 
 Question 7: How likely is that a yelper's friend has also visited at least one of the restaurants/businesses that the yelper has left a review/tip for. A person is considered having visited the restaurant/business if the person has once left a review/tip for the restaurant/business.
 	files:
@@ -74,6 +80,7 @@ Question 7: How likely is that a yelper's friend has also visited at least one o
 		user_friend_analysis_mp_reduce.py
 			This file contains MapReduce functions for run_user_friend_analysis.py
 
+*************************************
 
 Additional item:
 	(1) README.txt is this file.
